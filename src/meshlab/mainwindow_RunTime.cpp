@@ -64,12 +64,12 @@ using namespace vcg;
 void MainWindow::updateRecentFileActions()
 {
 	bool activeDoc = (bool) !mdiarea->subWindowList().empty() && mdiarea->currentSubWindow();
-	
+
 	QSettings settings;
 	QStringList files = settings.value("recentFileList").toStringList();
-	
+
 	int numRecentFiles = qMin(files.size(), (int)MAXRECENTFILES);
-	
+
 	for (int i = 0; i < numRecentFiles; ++i)
 	{
 		QString text = tr("&%1 %2").arg(i + 1).arg(QFileInfo(files[i]).fileName());
@@ -84,10 +84,10 @@ void MainWindow::updateRecentFileActions()
 void MainWindow::updateRecentProjActions()
 {
 	//bool activeDoc = (bool) !mdiarea->subWindowList().empty() && mdiarea->currentSubWindow();
-	
+
 	QSettings settings;
 	QStringList projs = settings.value("recentProjList").toStringList();
-	
+
 	int numRecentProjs = qMin(projs.size(), (int)MAXRECENTFILES);
 	for (int i = 0; i < numRecentProjs; ++i)
 	{
@@ -115,42 +115,42 @@ void MainWindow::updateWindowMenu()
 	windowsMenu->addAction(windowsCascadeAct);
 	windowsMenu->addAction(windowsNextAct);
 	windowsNextAct->setEnabled(mdiarea-> subWindowList().size()>1);
-	
+
 	windowsMenu->addSeparator();
-	
-	
+
+
 	if((mdiarea-> subWindowList().size()>0)){
 		// Split/Unsplit SUBmenu
 		splitModeMenu = windowsMenu->addMenu(tr("&Split current view"));
-		
+
 		splitModeMenu->addAction(setSplitHAct);
 		splitModeMenu->addAction(setSplitVAct);
-		
+
 		windowsMenu->addAction(setUnsplitAct);
-		
+
 		// Link act
 		windowsMenu->addAction(linkViewersAct);
-		
+
 		// View From SUBmenu
 		viewFromMenu = windowsMenu->addMenu(tr("&View from"));
 		foreach(QAction *ac, viewFromGroupAct->actions())
 			viewFromMenu->addAction(ac);
-		
+
 		// Trackball Step SUBmenu
 		trackballStepMenu = windowsMenu->addMenu(tr("Trackball step"));
 		foreach(QAction *ac, trackballStepGroupAct->actions())
 			trackballStepMenu->addAction(ac);
-		
+
 		// View From File act
 		windowsMenu->addAction(readViewFromFileAct);
 		windowsMenu->addAction(saveViewToFileAct);
 		windowsMenu->addAction(viewFromMeshAct);
 		windowsMenu->addAction(viewFromRasterAct);
-		
+
 		// Copy and paste shot acts
 		windowsMenu->addAction(copyShotToClipboardAct);
 		windowsMenu->addAction(pasteShotFromClipboardAct);
-		
+
 		//Enabling the actions
 		MultiViewer_Container *mvc = currentViewContainer();
 		if(mvc)
@@ -161,21 +161,21 @@ void MainWindow::updateWindowMenu()
 			{
 				setSplitHAct->setEnabled(current->size().height()/2 > current->minimumSizeHint().height());
 				setSplitVAct->setEnabled(current->size().width()/2 > current->minimumSizeHint().width());
-				
+
 				linkViewersAct->setEnabled(currentViewContainer()->viewerCounter()>1);
 				if(currentViewContainer()->viewerCounter()==1)
 					linkViewersAct->setChecked(false);
-				
+
 				windowsMenu->addSeparator();
 			}
 		}
 	}
-	
+
 	QList<QMdiSubWindow*> windows = mdiarea->subWindowList();
-	
+
 	if(windows.size() > 0)
 		windowsMenu->addSeparator();
-	
+
 	int i=0;
 	foreach(QWidget *w,windows)
 	{
@@ -247,7 +247,7 @@ void MainWindow::updateSubFiltersMenu( const bool createmenuenabled,const bool v
 	updateMenuItems(filterMenuTexture,validmeshdoc);
 	filterMenuCamera->setEnabled(validmeshdoc);
 	updateMenuItems(filterMenuCamera,validmeshdoc);
-	
+
 }
 
 void MainWindow::updateMenuItems(QMenu* menu,const bool enabled)
@@ -307,25 +307,25 @@ void MainWindow::updateLayerDialog()
 
 void MainWindow::updateMenus()
 {
-	
+
 	bool activeDoc = !(mdiarea->subWindowList().empty()) && (mdiarea->currentSubWindow() != NULL);
 	bool notEmptyActiveDoc = activeDoc && (meshDoc() != NULL) && !(meshDoc()->meshNumber() == 0);
-	
+
 	//std::cout << "SubWindowsList empty: " << mdiarea->subWindowList().empty() << " Valid Current Sub Windows: " << (mdiarea->currentSubWindow() != NULL) << " MeshList empty: " << meshDoc()->meshList.empty() << "\n";
-	
+
 	importMeshAct->setEnabled(activeDoc);
-	
+
 	exportMeshAct->setEnabled(notEmptyActiveDoc);
 	exportMeshAsAct->setEnabled(notEmptyActiveDoc);
 	reloadMeshAct->setEnabled(notEmptyActiveDoc);
 	reloadAllMeshAct->setEnabled(notEmptyActiveDoc);
 	importRasterAct->setEnabled(activeDoc);
-	
+
 	saveProjectAct->setEnabled(activeDoc);
 	closeProjectAct->setEnabled(activeDoc);
-	
+
 	saveSnapshotAct->setEnabled(activeDoc);
-	
+
 	updateRecentFileActions();
 	updateRecentProjActions();
 	filterMenu->setEnabled(!filterMenu->actions().isEmpty());
@@ -353,31 +353,31 @@ void MainWindow::updateMenus()
 			lastFilterAct->setText(QString("Apply filter ") + GLA()->getLastAppliedFilter()->text());
 			lastFilterAct->setEnabled(true);
 		}
-		
+
 		// Management of the editing toolbar
 		// when you enter in a editing mode you can toggle between editing
 		// and camera moving by esc;
 		// you exit from editing mode by pressing again the editing button
 		// When you are in a editing mode all the other editing are disabled.
-		
+
 		for (EditPlugin* ep : PM.editPluginFactoryIterator())
 			for (QAction* a : ep->actions()) {
 				a->setChecked(false);
 				a->setEnabled(GLA()->getCurrentEditAction() == nullptr);
 		}
-		
+
 		suspendEditModeAct->setChecked(GLA()->suspendedEditor);
 		suspendEditModeAct->setDisabled(GLA()->getCurrentEditAction() == NULL);
-		
+
 		if(GLA()->getCurrentEditAction())
 		{
 			GLA()->getCurrentEditAction()->setChecked(! GLA()->suspendedEditor);
 			GLA()->getCurrentEditAction()->setEnabled(true);
 		}
-		
+
 		showInfoPaneAct->setChecked(GLA()->infoAreaVisible);
 		showTrackBallAct->setChecked(GLA()->isTrackBallVisible());
-		
+
 		// Decorator Menu Checking and unChecking
 		// First uncheck and disable all the decorators
 		for (DecoratePlugin* dp : PM.decoratePluginIterator()){
@@ -389,7 +389,7 @@ void MainWindow::updateMenus()
 		// Check the decorator per Document of the current glarea
 		foreach (QAction *a,   GLA()->iPerDocDecoratorlist)
 		{ a ->setChecked(true); }
-		
+
 		// Then check the decorator enabled for the current mesh.
 		if(GLA()->mm())
 			foreach (QAction *a,   GLA()->iCurPerMeshDecoratorList())
@@ -424,7 +424,7 @@ void MainWindow::updateMenus()
 				a->setEnabled(false);
 			}
 		}
-		
+
 		layerDialog->setVisible(false);
 	}
 	if (searchMenu != NULL)
@@ -445,13 +445,13 @@ void MainWindow::setSplit(QAction *qa)
 			QPair<Shotm,float> shotAndScale = glArea->shotFromTrackball();
 			glwClone->loadShot(shotAndScale);
 		}
-		
+
 		//connect(glwClone, SIGNAL(insertRenderingDataForNewlyGeneratedMesh(int)), this, SLOT(addRenderingDataIfNewlyGeneratedMesh(int)));
 		if(qa->text() == tr("&Horizontally"))
 			mvc->addView(glwClone,Qt::Vertical);
 		else if(qa->text() == tr("&Vertically"))
 			mvc->addView(glwClone,Qt::Horizontal);
-		
+
 		//The loading of the raster must be here
 		if(GLA()->isRaster())
 		{
@@ -459,12 +459,12 @@ void MainWindow::setSplit(QAction *qa)
 			if(this->meshDoc()->rm()->id()>=0)
 				glwClone->loadRaster(this->meshDoc()->rm()->id());
 		}
-		
+
 		updateMenus();
-		
+
 		glwClone->update();
 	}
-	
+
 }
 
 void MainWindow::setUnsplit()
@@ -473,7 +473,7 @@ void MainWindow::setUnsplit()
 	if(mvc)
 	{
 		assert(mvc->viewerCounter() >1);
-		
+
 		mvc->removeView(mvc->currentView()->getId());
 
 		// After the view is removed and the remaining viewers
@@ -490,7 +490,7 @@ void MainWindow::splitFromHandle(QAction *qa )
 	MultiViewer_Container *mvc = currentViewContainer();
 	QPoint point = qa->data().toPoint();
 	int epsilon =10;
-	
+
 	if(qa->text() == tr("&Right"))
 		point.setX(point.x()+ epsilon);
 	else if(qa->text() == tr("&Left"))
@@ -499,10 +499,10 @@ void MainWindow::splitFromHandle(QAction *qa )
 		point.setY(point.y()- epsilon);
 	else if(qa->text() == tr("&Down"))
 		point.setY(point.y()+ epsilon);
-	
+
 	int newCurrent = mvc->getViewerByPicking(point);
 	mvc->updateCurrent(newCurrent);
-	
+
 	if(qa->text() == tr("&Right") || qa->text() == tr("&Left"))
 		setSplit(new QAction(tr("&Horizontally"), this));
 	else
@@ -512,10 +512,10 @@ void MainWindow::splitFromHandle(QAction *qa )
 void MainWindow::unsplitFromHandle(QAction * qa)
 {
 	MultiViewer_Container *mvc = currentViewContainer();
-	
+
 	QPoint point = qa->data().toPoint();
 	int epsilon =10;
-	
+
 	if(qa->text() == tr("&Right"))
 		point.setX(point.x()+ epsilon);
 	else if(qa->text() == tr("&Left"))
@@ -524,10 +524,10 @@ void MainWindow::unsplitFromHandle(QAction * qa)
 		point.setY(point.y()- epsilon);
 	else if(qa->text() == tr("&Down"))
 		point.setY(point.y()+ epsilon);
-	
+
 	int newCurrent = mvc->getViewerByPicking(point);
 	mvc->updateCurrent(newCurrent);
-	
+
 	setUnsplit();
 }
 
@@ -635,13 +635,13 @@ void MainWindow::endEdit()
 	MultiViewer_Container* mvc = currentViewContainer();
 	if ((meshDoc() == NULL) || (GLA() == NULL) || (mvc == NULL))
 		return;
-	
-	
+
+
 	for (const MeshModel& mm : meshDoc()->meshIterator()) {
 		addRenderingDataIfNewlyGeneratedMesh(mm.id());
 	}
 	meshDoc()->meshDocStateData().clear();
-	
+
 	GLA()->endEdit();
 	updateLayerDialog();
 }
@@ -657,7 +657,7 @@ void MainWindow::showFilterScript()
 {
 
 	FilterScriptDialog dialog(meshDoc()->filterHistory, this);
-	
+
 	if (dialog.exec()==QDialog::Accepted)
 	{
 		runFilterScript();
@@ -797,13 +797,13 @@ void MainWindow::startFilter(const QAction* action)
 {
 	if(currentViewContainer() == NULL) return;
 	if(GLA() == NULL) return;
-	
+
 	// In order to avoid that a filter changes something assumed by the current editing tool,
 	// before actually starting the filter we close the current editing tool (if any).
 	if (GLA()->getCurrentEditAction() != nullptr)
 		endEdit();
 	updateMenus();
-	
+
 	QStringList missingPreconditions;
 	if (action == nullptr)
 		action = qobject_cast<QAction *>(sender());
@@ -819,7 +819,7 @@ void MainWindow::startFilter(const QAction* action)
 																																					"Current mesh does not have <i>" + enstr + "</i>."));
 			return;
 		}
-		
+
 		if(currentViewContainer()) {
 			iFilter->setLog(currentViewContainer()->LogPtr());
 			currentViewContainer()->LogPtr()->setBookmark();
@@ -827,7 +827,7 @@ void MainWindow::startFilter(const QAction* action)
 
 		//checks if a filterDockDialog is already open and closes it
 		closeFilterDockDialog();
-		
+
 		// (2) Ask for filter parameters and eventually directly invoke the filter
 		// showAutoDialog return true if a dialog have been created (and therefore the execution is demanded to the apply event)
 		// if no dialog is created the filter must be executed immediately
@@ -1021,7 +1021,7 @@ void MainWindow::executeFilter(
 	FilterPlugin *iFilter = qobject_cast<FilterPlugin *>(action->parent());
 	qb->show();
 	iFilter->setLog(&meshDoc()->Log);
-	
+
 	// Ask for filter requirements (eg a filter can need topology, border flags etc)
 	// and satisfy them
 	qApp->setOverrideCursor(QCursor(Qt::WaitCursor));
@@ -1030,7 +1030,7 @@ void MainWindow::executeFilter(
 	if (!(meshDoc()->meshNumber() == 0))
 		meshDoc()->mm()->updateDataMask(req);
 	qApp->restoreOverrideCursor();
-	
+
 	// (3) save the current filter and its parameters in the history
 	if(!isPreview)
 		meshDoc()->Log.clearBookmark();
@@ -1042,7 +1042,7 @@ void MainWindow::executeFilter(
 	meshDoc()->setBusy(true);
 	RichParameterList mergedenvironment(params);
 	mergedenvironment.join(currentGlobalParams);
-	
+
 	MLSceneGLSharedDataContext* shar = NULL;
 	QGLWidget* filterWidget = NULL;
 	if (currentViewContainer() != NULL)
@@ -1053,12 +1053,12 @@ void MainWindow::executeFilter(
 		QGLFormat defForm = QGLFormat::defaultFormat();
 		iFilter->glContext = new MLPluginGLContext(defForm,filterWidget->context()->device(),*shar);
 		iFilter->glContext->create(filterWidget->context());
-		
+
 		MLRenderingData dt;
 		MLRenderingData::RendAtts atts;
 		atts[MLRenderingData::ATT_NAMES::ATT_VERTPOSITION] = true;
 		atts[MLRenderingData::ATT_NAMES::ATT_VERTNORMAL] = true;
-		
+
 		if (iFilter->filterArity(action) == FilterPlugin::SINGLE_MESH) {
 			MLRenderingData::PRIMITIVE_MODALITY pm = MLPoliciesStandAloneFunctions::bestPrimitiveModalityAccordingToMesh(meshDoc()->mm());
 			if ((pm != MLRenderingData::PR_ARITY) && (meshDoc()->mm() != NULL)) {
@@ -1086,18 +1086,18 @@ void MainWindow::executeFilter(
 			postCondMask = iFilter->postCondition(action);
 		for (MeshModel& mm : meshDoc()->meshIterator())
 			vcg::tri::Allocator<CMeshO>::CompactEveryVector(mm.cm);
-		
+
 		if (shar != NULL) {
 			shar->removeView(iFilter->glContext);
 			delete filterWidget;
 		}
-		
+
 		meshDoc()->setBusy(false);
-		
+
 		qApp->restoreOverrideCursor();
-		
+
 		// (5) Apply post filter actions (e.g. recompute non updated stuff if needed)
-		
+
 		meshDoc()->Log.logf(GLLogStream::SYSTEM,"Applied filter %s in %i msec",qUtf8Printable(action->text()),tt.elapsed());
 		if (meshDoc()->mm() != NULL)
 			meshDoc()->mm()->setMeshModified();
@@ -1108,8 +1108,8 @@ void MainWindow::executeFilter(
 		lastFilterAct->setText(QString("Apply filter ") + action->text());
 		lastFilterAct->setEnabled(true);
 
-		
-		
+
+
 		FilterPlugin::FilterArity arity = iFilter->filterArity(action);
 		QList<MeshModel*> tmp;
 		switch(arity)
@@ -1144,34 +1144,34 @@ void MainWindow::executeFilter(
 		default:
 			break;
 		}
-		
+
 		if(iFilter->getClass(action) & FilterPlugin::MeshCreation )
 			GLA()->resetTrackBall();
-		
+
 		for(int jj = 0;jj < tmp.size();++jj) {
 			MeshModel* mm = tmp[jj];
 			if (mm != NULL) {
 				// at the end for filters that change the color, or selection set the appropriate rendering mode
 				if(iFilter->getClass(action) & FilterPlugin::FaceColoring )
 					mm->updateDataMask(MeshModel::MM_FACECOLOR);
-				
+
 				if(iFilter->getClass(action) & FilterPlugin::VertexColoring )
 					mm->updateDataMask(MeshModel::MM_VERTCOLOR);
-				
+
 				if(iFilter->getClass(action) & FilterPlugin::MeshColoring )
 					mm->updateDataMask(MeshModel::MM_COLOR);
-				
+
 				if(postCondMask & MeshModel::MM_CAMERA)
 					mm->updateDataMask(MeshModel::MM_CAMERA);
-				
+
 				if(iFilter->getClass(action) & FilterPlugin::Texture )
 					updateTexture(mm->id());
 			}
 		}
-		
+
 		int fclasses =	iFilter->getClass(action);
 		//MLSceneGLSharedDataContext* sharedcont = GLA()->getSceneGLSharedContext();
-		
+
 		updateSharedContextDataAfterFilterExecution(postCondMask,fclasses,newmeshcreated);
 		meshDoc()->meshDocStateData().clear();
 
@@ -1227,10 +1227,10 @@ void MainWindow::suspendEditMode()
 {
 	// return if no window is open
 	if(!GLA()) return;
-	
+
 	// return if no editing action is currently ongoing
 	if(!GLA()->getCurrentEditAction()) return;
-	
+
 	GLA()->suspendEditToggle();
 	updateMenus();
 	GLA()->update();
@@ -1242,9 +1242,9 @@ void MainWindow::applyEditMode()
 		action->setChecked(false);
 		return;
 	}
-	
+
 	QAction *action = qobject_cast<QAction *>(sender());
-	
+
 	if(GLA()->getCurrentEditAction()) //prevents multiple buttons pushed
 	{
 		if(action==GLA()->getCurrentEditAction()) // We have double pressed the same action and that means disable that actioon
@@ -1261,7 +1261,7 @@ void MainWindow::applyEditMode()
 		assert(0); // it should be impossible to start an action without having ended the previous one.
 		return;
 	}
-	
+
 	//if this GLArea does not have an instance of this action's MeshEdit tool then give it one
 	if(!GLA()->editorExistsForAction(action))
 	{
@@ -1286,12 +1286,12 @@ void MainWindow::applyRenderMode()
 	// Make the call to the plugin core
 	RenderPlugin *iRenderTemp = qobject_cast<RenderPlugin *>(action->parent());
 	bool initsupport = false;
-	
+
 	if (currentViewContainer() == NULL)
 		return;
-	
+
 	MLSceneGLSharedDataContext* shared = currentViewContainer()->sharedDataContext();
-	
+
 	if ((shared != NULL) && (iRenderTemp != NULL))
 	{
 		MLSceneGLSharedDataContext::PerMeshRenderingDataMap rdmap;
@@ -1310,7 +1310,7 @@ void MainWindow::applyRenderMode()
 			iRenderTemp->finalize(action,meshDoc(),GLA());
 		}
 	}
-	
+
 	/*I clicked None in renderMenu */
 	if ((action->parent() == this) || (!initsupport))
 	{
@@ -1326,11 +1326,11 @@ void MainWindow::applyDecorateMode()
 {
 	if(GLA()->mm() == 0) return;
 	QAction *action = qobject_cast<QAction *>(sender());		// find the action which has sent the signal
-	
+
 	DecoratePlugin *iDecorateTemp = qobject_cast<DecoratePlugin *>(action->parent());
-	
+
 	GLA()->toggleDecorator(iDecorateTemp->decorationName(action));
-	
+
 	updateMenus();
 	layerDialog->updateDecoratorParsView();
 	layerDialog->updateLog(meshDoc()->Log);
@@ -1639,20 +1639,20 @@ bool MainWindow::openProject(QString fileName, bool append)
 	// codebase.
 	if(this->GLA() == 0) return false;
 	else GLA()->updateMeshSetVisibilities();
-	
+
 	MultiViewer_Container* mvc = currentViewContainer();
 	if (mvc != NULL)
 	{
 		mvc->resetAllTrackBall();
 		mvc->updateAllDecoratorsForAllViewers();
 	}
-	
+
 	setCurrentMeshBestTab();
 	qb->reset();
 	saveRecentProjectList(fileName);
 	globrendtoolbar->setEnabled(true);
 	showLayerDlg(visiblelayer || (meshDoc()->meshNumber() > 0));
-	
+
 	return true;
 }
 
@@ -1664,9 +1664,9 @@ bool MainWindow::appendProject(QString fileName)
 		fileNameList = QFileDialog::getOpenFileNames(this, tr("Append Project File"), lastUsedDirectory.path(), "All Project Files (*.mlp *.mlb *.aln *.out *.nvm);;MeshLab Project (*.mlp);;MeshLab Binary Project (*.mlb);;Align Project (*.aln);;Bundler Output (*.out);;VisualSFM Output (*.nvm)");
 	else
 		fileNameList.append(fileName);
-	
+
 	if (fileNameList.isEmpty()) return false;
-	
+
 	// Check if we have a doc and if it is empty
 	bool activeDoc = (bool) !mdiarea->subWindowList().empty() && mdiarea->currentSubWindow();
 	if (!activeDoc || (meshDoc()->meshNumber() == 0))  // it is wrong to try appending to an empty project, even if it is possible
@@ -1674,14 +1674,14 @@ bool MainWindow::appendProject(QString fileName)
 		QMessageBox::critical(this, tr("Meshlab Opening Error"), "Current project is empty, cannot append");
 		return false;
 	}
-	
+
 	meshDoc()->setBusy(true);
-	
+
 	// load all projects
 	for(QString fileName: fileNameList) {
 		openProject(fileName, true);
 	}
-	
+
 	globrendtoolbar->setEnabled(true);
 	meshDoc()->setBusy(false);
 	if(this->GLA() == 0)  return false;
@@ -1691,7 +1691,7 @@ bool MainWindow::appendProject(QString fileName)
 		mvc->updateAllDecoratorsForAllViewers();
 		mvc->resetAllTrackBall();
 	}
-	
+
 	setCurrentMeshBestTab();
 	qb->reset();
 	saveRecentProjectList(fileName);
@@ -1702,7 +1702,7 @@ void MainWindow::setCurrentMeshBestTab()
 {
 	if (layerDialog == NULL)
 		return;
-	
+
 	MultiViewer_Container* mvc = currentViewContainer();
 	if (mvc != NULL)
 	{
@@ -1738,7 +1738,7 @@ void MainWindow::newProject(const QString& projName)
 	GLArea *gla=new GLArea(this, mvcont, &currentGlobalParams);
 	//connect(gla, SIGNAL(insertRenderingDataForNewlyGeneratedMesh(int)), this, SLOT(addRenderingDataIfNewlyGeneratedMesh(int)));
 	mvcont->addView(gla, Qt::Horizontal);
-	
+
 	if (projName.isEmpty())
 	{
 		static int docCounter = 1;
@@ -1773,7 +1773,7 @@ void MainWindow::documentUpdateRequested()
 void MainWindow::updateFilterToolBar()
 {
 	filterToolBar->clear();
-	
+
 	for(FilterPlugin *iFilter: PM.filterPluginIterator()) {
 		for(QAction* filterAction: iFilter->actions()) {
 			if (!filterAction->icon().isNull()) {
@@ -1927,7 +1927,7 @@ void MainWindow::computeRenderingDataOnLoading(MeshModel* mm,bool isareload, MLR
 				GLArea* ar = mv->getViewer(glarid);
 				if (ar != NULL)
 				{
-					
+
 					if (isareload)
 					{
 						MLRenderingData currentdt;
@@ -1973,7 +1973,7 @@ bool MainWindow::importMesh(QString fileName)
 		if(!GLA())
 			return false;
 	}
-	
+
 	QStringList fileNameList;
 	if (fileName.isEmpty()) {
 		fileNameList = QFileDialog::getOpenFileNames(
@@ -1984,7 +1984,7 @@ bool MainWindow::importMesh(QString fileName)
 	else {
 		fileNameList.push_back(fileName);
 	}
-	
+
 	if (fileNameList.isEmpty()) {
 		return false;
 	}
@@ -1994,7 +1994,7 @@ bool MainWindow::importMesh(QString fileName)
 		path.truncate(path.lastIndexOf("/"));
 		lastUsedDirectory.setPath(path);
 	}
-	
+
 	QElapsedTimer allFileTime;
 	allFileTime.start();
 	for(const QString& fileName : fileNameList) {
@@ -2018,7 +2018,7 @@ bool MainWindow::importMesh(QString fileName)
 			QMessageBox::critical(this, tr("Meshlab Opening Error"), errorMsgFormat.arg(fileName));
 			return false;
 		}
-		
+
 		pCurrentIOPlugin->setLog(&meshDoc()->Log);
 		RichParameterList prePar = pCurrentIOPlugin->initPreOpenParameter(extension);
 		if(!prePar.isEmpty()) {
@@ -2169,7 +2169,7 @@ bool MainWindow::importMesh(QString fileName)
 		qApp->restoreOverrideCursor();
 	}// end foreach file of the input list
 	GLA()->Logf(0,"All files opened in %i msec",allFileTime.elapsed());
-	
+
 	if (_currviewcontainer != NULL) {
 		_currviewcontainer->resetAllTrackBall();
 		_currviewcontainer->updateAllDecoratorsForAllViewers();
@@ -2196,6 +2196,15 @@ void MainWindow::reloadAllMesh()
 {
 	// Discards changes and reloads current file
 	// save current file name
+	QMessageBox::StandardButton reply;
+	reply = QMessageBox::question(
+		this,
+		"You are reloading all mesh!",
+		"Are You sure to Reload?",
+		QMessageBox::Yes | QMessageBox::No);
+	if (reply == QMessageBox::No) {
+		return;
+	}
 	qb->show();
 	QElapsedTimer t;
 	t.start();
@@ -2230,7 +2239,7 @@ void MainWindow::reloadAllMesh()
 	qApp->restoreOverrideCursor();
 	GLA()->Log(0, ("All meshes reloaded in " + std::to_string(t.elapsed()) + " msec.").c_str());
 	qb->reset();
-	
+
 	if (_currviewcontainer != NULL)
 	{
 		_currviewcontainer->updateAllDecoratorsForAllViewers();
@@ -2244,6 +2253,14 @@ void MainWindow::reload()
 		return;
 	// Discards changes and reloads current file
 	// save current file name
+	QMessageBox::StandardButton reply;
+	reply = QMessageBox::question(this,
+		"You are reloading the current mesh",
+		"Are you sure to reload?",
+		QMessageBox::Yes | QMessageBox::No);
+	if (reply == QMessageBox::No) {
+		return;
+	}
 	qb->show();
 
 	QString fileName = meshDoc()->mm()->fullName();
@@ -2465,18 +2482,18 @@ bool MainWindow::saveSnapshot()
 {
 	if (!GLA()) return false;
 	if (meshDoc()->isBusy()) return false;
-	
+
 	SaveSnapshotDialog* dialog = new SaveSnapshotDialog(this);
 	//dialog->setModal(true);
 	dialog->setValues(GLA()->ss);
 	int res = dialog->exec();
-	
+
 	if (res == QDialog::Accepted) {
 		GLA()->ss=dialog->getValues();
 		GLA()->saveSnapshot();
 		return true;
 	}
-	
+
 	return false;
 }
 void MainWindow::about()
@@ -2579,7 +2596,7 @@ void MainWindow::fullScreen(){
 		menuBar()->show();
 		restoreState(toolbarState);
 		globalStatusBar()->show();
-		
+
 		setWindowState(windowState()^ Qt::WindowFullScreen);
 		bool found=true;
 		//Caso di piu' finestre aperte in tile:
@@ -2636,11 +2653,11 @@ void MainWindow::updateTexture(int meshid)
 	MultiViewer_Container* mvc = currentViewContainer();
 	if ((mvc == NULL) || (meshDoc() == NULL))
 		return;
-	
+
 	MLSceneGLSharedDataContext* shared = mvc->sharedDataContext();
 	if (shared == NULL)
 		return;
-	
+
 	MeshModel* mymesh = meshDoc()->getMesh(meshid);
 	if (mymesh  == NULL)
 		return;
@@ -2649,13 +2666,13 @@ void MainWindow::updateTexture(int meshid)
 	QDir::setCurrent(mymesh->pathName());
 
 	shared->deAllocateTexturesPerMesh(mymesh->id());
-	
+
 	int textmemMB = int(mwsettings.maxTextureMemory / ((float) 1024 * 1024));
-	
+
 	size_t totalTextureNum = 0;
 	for (const MeshModel& mp : meshDoc()->meshIterator())
 		totalTextureNum+=mp.cm.textures.size();
-	
+
 	int singleMaxTextureSizeMpx = int(textmemMB/((totalTextureNum != 0)? totalTextureNum : 1));
 
 	bool sometextnotfound = false;
@@ -2667,7 +2684,7 @@ void MainWindow::updateTexture(int meshid)
 			img.load(":/images/dummy.png");
 		}
 		GLuint textid = shared->allocateTexturePerMesh(meshid,img,singleMaxTextureSizeMpx);
-		
+
 		for(int tt = 0;tt < mvc->viewerCounter();++tt)
 		{
 			GLArea* ar = mvc->getViewer(tt);
@@ -2783,7 +2800,7 @@ void MainWindow::meshAdded(int mid)
 				updateLayerDialog();
 			}
 		}
-		
+
 	}
 }
 
@@ -2874,7 +2891,7 @@ void MainWindow::updateRenderingDataAccordingToActionsCommonCode(int meshid, con
 {
 	if (meshDoc() == NULL)
 		return;
-	
+
 	MLRenderingData olddt;
 	getRenderingData(meshid, olddt);
 	MLRenderingData dt(olddt);
@@ -2890,7 +2907,7 @@ void MainWindow::updateRenderingDataAccordingToActionsCommonCode(int meshid, con
 		MLPoliciesStandAloneFunctions::computeRequestedRenderingDataCompatibleWithMeshSameGLOpts(mm, dt, dt);
 	}
 	setRenderingData(meshid, dt);
-	
+
 	/*if (meshid == -1)
 	{
 		foreach(MeshModel* mm, meshDoc()->meshList)
@@ -2910,7 +2927,7 @@ void MainWindow::updateRenderingDataAccordingToActionsCommonCode(int meshid, con
 		dec.updateMeshDecorationData(*mm, olddt, dt);
 	}
 	/*}*/
-	
+
 }
 
 
@@ -2939,7 +2956,7 @@ void MainWindow::updateRenderingDataAccordingToActions(int /*meshid*/, MLRenderi
 {
 	if ((meshDoc() == NULL) || (act == NULL))
 		return;
-	
+
 	QList<MLRenderingAction*> tmpacts;
 	for (int ii = 0; ii < acts.size(); ++ii)
 	{
@@ -2951,18 +2968,18 @@ void MainWindow::updateRenderingDataAccordingToActions(int /*meshid*/, MLRenderi
 			tmpacts.push_back(sisteract);
 		}
 	}
-	
+
 	for (const MeshModel& mm : meshDoc()->meshIterator()) {
 		updateRenderingDataAccordingToActionsCommonCode(mm.id(), tmpacts);
 	}
-	
+
 	for (int ii = 0; ii < tmpacts.size(); ++ii)
 		delete tmpacts[ii];
 	tmpacts.clear();
-	
+
 	if (GLA() != NULL)
 		GLA()->update();
-	
+
 	updateLayerDialog();
 }
 
@@ -2971,7 +2988,7 @@ void MainWindow::updateRenderingDataAccordingToActionCommonCode(int meshid, MLRe
 {
 	if ((meshDoc() == NULL) || (act == NULL))
 		return;
-	
+
 	if (meshid != -1)
 	{
 		MLRenderingData olddt;
@@ -3004,7 +3021,7 @@ void MainWindow::updateRenderingDataAccordingToActionToAllVisibleLayers(MLRender
 {
 	if (meshDoc() == NULL)
 		return;
-	
+
 	for (const MeshModel& mm : meshDoc()->meshIterator()) {
 		if (mm.isVisible()) {
 			updateRenderingDataAccordingToActionCommonCode(mm.id(), act);
@@ -3019,7 +3036,7 @@ void  MainWindow::updateRenderingDataAccordingToActions(QList<MLRenderingGlobalA
 {
 	if (meshDoc() == NULL)
 		return;
-	
+
 	for (const MeshModel& mm : meshDoc()->meshIterator())
 	{
 		foreach(MLRenderingGlobalAction* act, actlist) {
