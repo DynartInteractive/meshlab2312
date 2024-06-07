@@ -8,7 +8,7 @@
 *                                                                    \      *
 * All rights reserved.                                                      *
 *                                                                           *
-* This program is free software; you can redistribute it and/or modify      *   
+* This program is free software; you can redistribute it and/or modify      *
 * it under the terms of the GNU General Public License as published by      *
 * the Free Software Foundation; either version 2 of the License, or         *
 * (at your option) any later version.                                       *
@@ -26,6 +26,7 @@
 #define EditSelectFactoryPLUGIN_H
 
 #include <common/plugins/interfaces/edit_plugin.h>
+#include "common/parameters/rich_parameter_list.h"
 
 class EditSelectFactory : public QObject, public EditPlugin
 {
@@ -37,6 +38,8 @@ public:
 	EditSelectFactory();
 	virtual ~EditSelectFactory() { delete editSelect; }
 
+	virtual void initGlobalParameterList(RichParameterList& defaultGlobalParamSet);
+
 	virtual QString pluginName() const;
 
 	//get the edit tool for the given action
@@ -45,7 +48,14 @@ public:
 	//get the description for the given action
 	virtual QString getEditToolDescription(const QAction*);
 
+	inline QString InvertCtrlBehavior() const { return  "MeshLab::Editors::InvertCTRLBehavior" ; }
+
+
+	signals:
+		void setDecorator(QString, bool);
+
 private:
+	bool ctrlState;
 	QAction *editSelect;
 	QAction *editSelectVert;
 	QAction *editSelectConnected;

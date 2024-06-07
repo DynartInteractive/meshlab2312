@@ -49,7 +49,7 @@
 #include <QProgressBar>
 #include <QNetworkAccessManager>
 
-// Note the number of recent files is limited by the number of 
+// Note the number of recent files is limited by the number of
 // shortcuts for quick opening 1..9
 #define MAXRECENTFILES 9
 
@@ -86,7 +86,7 @@ public:
 
 	std::ptrdiff_t maxTextureMemory;
 	inline static QString maxTextureMemoryParam()  {return "MeshLab::System::maxTextureMemory"; }
-	  
+
 	int startupWindowWidth;
 	inline static QString startupWindowWidthParam() {return "MeshLab::System::startupWindowWidth"; }
 
@@ -95,7 +95,7 @@ public:
 
 	QString meshSetName;
 	inline static QString meshSetNameParam() {return "MeshLab::System::meshSetName"; }
-	
+
 	bool checkForUpdate;
 	inline static QString checkForUpdateParam() {return "MeshLab::System::checkForUpdate"; }
 
@@ -113,6 +113,7 @@ public:
 	static bool QCallBack(const int pos, const char * str);
 	//const QString appName() const {return tr("MeshLab v")+appVer(); }
 	//const QString appVer() const {return tr("1.3.2"); }
+	RichParameterList& getCurrentParameterList();
 	MainWindowSetting mwsettings;
 public slots:
 	// callback function to execute a filter
@@ -531,6 +532,8 @@ private:
 	static QString getDecoratedFileName(const QString& name);
 
 	MultiViewer_Container* _currviewcontainer;
+	Q_SIGNALS:
+	void customSettingsChanged(const RichParameterList &rpl);
 };
 
 /// Event filter that is installed to intercept the open events sent directly by the Operative System

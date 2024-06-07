@@ -35,7 +35,7 @@ class GLArea;
 
 /**
  * @brief The EditTool class is used to provide tools that needs some kind of
- * interaction with the mesh. Editing tools are exclusive (only one at a time) 
+ * interaction with the mesh. Editing tools are exclusive (only one at a time)
  * and can grab the mouse events and customize the rendering process.
  **/
 
@@ -93,13 +93,13 @@ public:
 };
 
 
-/** 
+/**
  * @brief The EditPlugin class  is used to generate an action for each
  * starting of an editing tool.
  *
  * This is needed because editing tools have a internal state, so if you want
- * to have an editing tool for two different documents you have to instance 
- * two objects. This class is used by the framework to generate an independent 
+ * to have an editing tool for two different documents you have to instance
+ * two objects. This class is used by the framework to generate an independent
  * EditTool for each document.
  */
 class EditPlugin : public MeshLabPlugin
@@ -107,7 +107,7 @@ class EditPlugin : public MeshLabPlugin
 public:
 	EditPlugin() {}
 	virtual ~EditPlugin() {}
-
+	virtual void initGlobalParameterList(RichParameterList& defaultGlobalParamSet);
 	//gets a list of actions available from this plugin
 	virtual std::list<QAction *> actions() const {return actionList;};
 
@@ -116,9 +116,14 @@ public:
 
 	//get the description for the given action
 	virtual QString getEditToolDescription(const QAction *) = 0;
+	void setCurrentGlobalParamSet(RichParameterList* cgp)
+	{
+		currentGlobalParamSet = cgp;
+	}
 
 protected:
 	std::list<QAction*> actionList;
+	RichParameterList* currentGlobalParamSet;
 };
 
 #define EDIT_PLUGIN_IID  "vcg.meshlab.EditPlugin/1.0"

@@ -8,7 +8,7 @@
 *                                                                    \      *
 * All rights reserved.                                                      *
 *                                                                           *
-* This program is free software; you can redistribute it and/or modify      *   
+* This program is free software; you can redistribute it and/or modify      *
 * it under the terms of the GNU General Public License as published by      *
 * the Free Software Foundation; either version 2 of the License, or         *
 * (at your option) any later version.                                       *
@@ -23,6 +23,7 @@
 
 #include "edit_select_factory.h"
 #include "edit_select.h"
+#include "common/parameters/rich_parameter_list.h"
 
 EditSelectFactory::EditSelectFactory()
 {
@@ -35,9 +36,13 @@ EditSelectFactory::EditSelectFactory()
 	actionList.push_back(editSelect);
 	actionList.push_back(editSelectConnected);
 	actionList.push_back(editSelectArea);
-	
+
 	foreach(QAction *editAction, actionList)
-		editAction->setCheckable(true); 	
+		editAction->setCheckable(true);
+}
+
+void EditSelectFactory::initGlobalParameterList(RichParameterList& defaultGlobalParamSet) {
+	defaultGlobalParamSet.addParam(RichBool(InvertCtrlBehavior(), true,"Inverting the behavior of the CTRL modifier on edit selec rectangle tools",""));
 }
 
 QString EditSelectFactory::pluginName() const
@@ -48,17 +53,19 @@ QString EditSelectFactory::pluginName() const
 //get the edit tool for the given action
 EditTool* EditSelectFactory::getEditTool(const QAction *action)
 {
+	EditSelectPlugin* result = nullptr;
 	if(action == editSelect)
-		return new EditSelectPlugin(EditSelectPlugin::SELECT_FACE_MODE);
+		result = new EditSelectPlugin(currentGlobalParamSet,EditSelectPlugin::SELECT_FACE_MODE);
 	else if(action == editSelectConnected)
-		return new EditSelectPlugin(EditSelectPlugin::SELECT_CONN_MODE);
+		result = new EditSelectPlugin(currentGlobalParamSet,EditSelectPlugin::SELECT_CONN_MODE);
 	else if(action == editSelectVert)
-		return new EditSelectPlugin(EditSelectPlugin::SELECT_VERT_MODE);
+		result = new EditSelectPlugin(currentGlobalParamSet,EditSelectPlugin::SELECT_VERT_MODE);
 	else if (action == editSelectArea)
-		return new EditSelectPlugin(EditSelectPlugin::SELECT_AREA_MODE);
+		result = new EditSelectPlugin(currentGlobalParamSet,EditSelectPlugin::SELECT_AREA_MODE);
 
-	assert(0); //should never be asked for an action that isn't here
-	return nullptr;
+	if (result == nullptr) {
+		assert(0);
+	}
 }
 
 QString EditSelectFactory::getEditToolDescription(const QAction * /*a*/)

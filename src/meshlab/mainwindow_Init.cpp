@@ -107,7 +107,7 @@ MainWindow::MainWindow() :
 	QIcon icon;
 	icon.addPixmap(QPixmap(":images/eye48.png"));
 	setWindowIcon(icon);
-	
+
 	QVariant vers = settings.value(MeshLabApplication::versionRegisterKeyName());
 	//should update those values only after I run MeshLab for the very first time or after I installed a new version
 	if (!vers.isValid() || vers.toString() < MeshLabApplication::appVer())
@@ -731,7 +731,7 @@ void MainWindow::fillFilterMenu()
 
 	//this is used just to fill the menus with alphabetical order
 	std::map<QString, FilterPlugin*> mapFilterPlugins;
-	
+
 	//populate the map
 	for (FilterPlugin* fpi : PM.filterPluginIterator()){
 		for (QAction* act : fpi->actions()){
@@ -887,7 +887,7 @@ void MainWindow::updateAllPluginsActions()
 	fillFilterMenu();
 	fillRenderMenu();
 	fillEditMenu();
-	
+
 	//update toolbars
 	decoratorToolBar->clear();
 	for(DecoratePlugin *iDecorate: PM.decoratePluginIterator()) {
@@ -896,7 +896,7 @@ void MainWindow::updateAllPluginsActions()
 				decoratorToolBar->addAction(decorateAction);
 		}
 	}
-	
+
 	editToolBar->clear();
 	editToolBar->addAction(suspendEditModeAct);
 	for(EditPlugin *iEditFactory: PM.editPluginFactoryIterator()) {
@@ -908,7 +908,7 @@ void MainWindow::updateAllPluginsActions()
 		}
 	}
 	editToolBar->addSeparator();
-	
+
 	filterToolBar->clear();
 	updateFilterToolBar();
 }
@@ -940,6 +940,11 @@ void MainWindow::loadDefaultSettingsFromPlugins()
 				defaultGlobalParams.join(tmplist);
 			}
 		}
+	}
+	//edit settings
+	for (EditPlugin* ep : PM.editPluginFactoryIterator()) {
+		ep->initGlobalParameterList(defaultGlobalParams);
+		ep->setCurrentGlobalParamSet(&currentGlobalParams);
 	}
 }
 
@@ -1177,7 +1182,7 @@ void MainWindow::checkForUpdatesConnectionDone(QNetworkReply *reply)
 
 		message +=
 				"<big> <a href=\"https://www.meshlab.net/#download\">Download</a></big></center>";
-		
+
 		msgBox.setText(message);
 	}
 	else if (verboseCheckingFlag && !newVersionAvailable) {
