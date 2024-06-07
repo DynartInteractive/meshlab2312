@@ -28,9 +28,13 @@
 EditSelectFactory::EditSelectFactory()
 {
 	editSelect = new QAction(QIcon(":/images/select_face.png"),"Select Faces in a rectangular region", this);
+    editSelect->setShortcut(QKeySequence(Qt::Key_3));
 	editSelectConnected = new QAction(QIcon(":/images/select_face_connected.png"),"Select Connected Components in a region", this);
+    editSelectConnected->setShortcut(QKeySequence(Qt::Key_2));
 	editSelectVert = new QAction(QIcon(":/images/select_vertex.png"),"Select Vertices", this);
+    editSelectVert->setShortcut(QKeySequence(Qt::Key_4));
 	editSelectArea = new QAction(QIcon(":/images/select_area.png"), "Select Faces/Vertices inside polyline area", this);
+    editSelectArea->setShortcut(QKeySequence(Qt::Key_1));
 
 	actionList.push_back(editSelectVert);
 	actionList.push_back(editSelect);
